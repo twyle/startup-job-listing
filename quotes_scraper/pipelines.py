@@ -16,7 +16,17 @@ from scrapy import Spider, Item
 from .items import TagItem, QuoteItemSchema
 from redis import Redis
 from scrapy.exceptions import DropItem
+from elasticsearch import Elasticsearch
+from pydantic import Field, SecretStr
+from pydantic_settings import BaseSettings
 
+
+class ESAuth(BaseSettings):
+    """Settings for Elasticsearch."""
+
+    host: str = Field(env="ES_HOST", default="http://localhost:9200")
+    user: str = Field(env="ES_USER", default="elastic")
+    password: SecretStr = Field(env="ES_PASSWORD", default="elastic")
 
 
 class DropDuplicatesPipeline:
@@ -58,3 +68,18 @@ class SaveQuotesPipeline:
         quote_content: str = item['quote_content']
         self.redis.set(quote_content, quote_content)
         return item
+
+
+class SaveToElasticsearchPipeline:
+    def __init__(self) -> None:
+        es_auth: ESAuth = ESAuth()
+        self.es_client: Elasticsearch = Elasticsearch(
+            es_auth.host,
+            basic_auth=(es_auth.user, es_auth.password.get_secret_value()),
+        )
+    
+    def process_item(self, item: Item, spider: Spider) -> Item:
+        quote_content: str = item['quote_content']
+        tags: list[str] = item['tags']
+        data = dict(quote_content=quote_content, tags=tags)
+        self.es_client.index(index='quotes', document=data)

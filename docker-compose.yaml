@@ -18,33 +18,39 @@ services:
     volumes:
       - redis:/data
 
-  # influencer-api:
-  #   build:
-  #     context: services/app
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #       - .:/usr/src/app
-  #   expose:  # new
-  #     - 5000
-  #   env_file:
-  #     - ./services/app/.env
-  #   labels:  # new
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.flask.rule=Host(`flask.localhost`)"
-  #   depends_on:
-  #     - db
-  #     - traefik
+  elasticsearch:
+    image: elasticsearch:8.6.2
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=false
+    volumes:
+      - type: volume
+        source: es_data
+        target: /usr/share/elasticsearch/data
+    ports:
+      - target: 9200
+        published: 9200
+    networks:
+      - search-service
 
-  # traefik:  # new
-  #   image: traefik
-  #   ports:
-  #     - 80:80
-  #     - 8081:8080
-  #   volumes:
-  #     - "./services/traefik/traefik.dev.toml:/etc/traefik/traefik.toml"
-  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  kibana:
+    image: kibana:8.6.2
+    ports:
+      - target: 5601
+        published: 5601
+    networks:
+      - search-service
+    depends_on:
+      - elasticsearch  
+
+networks:
+  search-service:
+    name: search-service
+    driver: bridge
 
 volumes:
   quotes_scraper:
+  es_data:
   redis:
     driver: local

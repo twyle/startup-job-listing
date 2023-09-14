@@ -1,1 +1,1 @@
-from .extensions import redis
+from .extensions import redis, es_client
