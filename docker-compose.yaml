@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  # db:
+  #   image: postgres
+  #   volumes:
+  #     - influencer_api:/var/lib/postgresql/data/
+  #   env_file:
+  #     - ./services/database/.env
+  #   ports:
+  #     - 5432:5432
+
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning
+    volumes:
+      - redis:/data
+
+  # influencer-api:
+  #   build:
+  #     context: services/app
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #       - .:/usr/src/app
+  #   expose:  # new
+  #     - 5000
+  #   env_file:
+  #     - ./services/app/.env
+  #   labels:  # new
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.flask.rule=Host(`flask.localhost`)"
+  #   depends_on:
+  #     - db
+  #     - traefik
+
+  # traefik:  # new
+  #   image: traefik
+  #   ports:
+  #     - 80:80
+  #     - 8081:8080
+  #   volumes:
+  #     - "./services/traefik/traefik.dev.toml:/etc/traefik/traefik.toml"
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+volumes:
+  quotes_scraper:
+  redis:
+    driver: local

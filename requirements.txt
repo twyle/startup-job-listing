@@ -1,0 +1,3 @@
+scrapy==2.10.1
+sqlalchemy==2.0.20
+redis==5.0.0

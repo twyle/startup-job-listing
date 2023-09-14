@@ -1,0 +1,9 @@
+uvicorn
+fastapi
+celery
+redis
+ayv==0.5.1
+pydantic-settings
+python-dotenv
+requests
+sqlalchemy
