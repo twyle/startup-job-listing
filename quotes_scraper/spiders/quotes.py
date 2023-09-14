@@ -7,7 +7,7 @@ class QuotesSpider(scrapy.Spider):
     allowed_domains = ["toscrape.com"]
     start_urls = ['http://quotes.toscrape.com/']
     pages_crawled: int = 0
-    max_pages: int = 6
+    max_pages: int = 1
 
 
     def parse(self, response):

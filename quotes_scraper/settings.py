@@ -66,6 +66,7 @@ ITEM_PIPELINES = {
    # "quotes_scraper.pipelines.DropDuplicatesPipeline": 200,
    "quotes_scraper.pipelines.SaveQuotesPipeline": 300,
    "quotes_scraper.pipelines.SaveToElasticsearchPipeline": 400,
+   "quotes_scraper.pipelines.PublishQuotePipeline": 500,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

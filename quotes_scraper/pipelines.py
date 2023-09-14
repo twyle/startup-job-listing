@@ -19,6 +19,7 @@ from scrapy.exceptions import DropItem
 from elasticsearch import Elasticsearch
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings
+from json import dumps
 
 
 class ESAuth(BaseSettings):
@@ -83,3 +84,15 @@ class SaveToElasticsearchPipeline:
         tags: list[str] = item['tags']
         data = dict(quote_content=quote_content, tags=tags)
         self.es_client.index(index='quotes', document=data)
+        return item
+        
+class PublishQuotePipeline:
+    def __init__(self) -> None:
+        self.redis: Redis = Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    
+    def process_item(self, item: Item, spider: Spider) -> Item:
+        quote_content: str = item['quote_content']
+        tags: list[str] = item['tags']
+        data = dict(quote_content=quote_content, tags=tags)
+        self.redis.publish(channel='quotes', message=dumps(data))
+        return item
